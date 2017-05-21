@@ -1,20 +1,29 @@
 (ns kyushu.core
   (:require [clojure.java.io :as io]))
 
-(defn file [name path]
-  {name (-> path io/file slurp)})
+(defn file [path]
+  {:type :file
+   :source path
+   :data (try
+           (-> path io/file slurp)
+           (catch Exception e
+             {}))})
 
-(defn resource [name path]
-  {name (-> path io/resource slurp)})
+(defn resource [path]
+  {:type :resource
+   :source path
+   :data (try
+           (-> path io/resource slurp)
+           (catch Exception e
+             {}))})
 
-(defn memory [name data]
-  {name data})
+(defn memory [data]
+  {:type :memory
+   :data data})
 
-(defn environment [name]
-  {name (System/getenv)})
-
-(defn- combine [& sources]
-  (apply merge sources))
+(defn environment []
+  {:type :environment
+   :data (System/getenv)})
 
 (defn- merge-in
   ([a] a)
@@ -26,5 +35,8 @@
    (reduce merge-in (merge-in a b) more)))
 
 (defn ask [source k & ks]
-  (get-in (apply merge-in (vals source)) (into [k] ks)))
+  (get-in (->> (vals source)
+               (map :data)
+               (apply merge-in))
+          (into [k] ks)))
 
