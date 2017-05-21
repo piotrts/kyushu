@@ -34,9 +34,9 @@
   ([a b & more]
    (reduce merge-in (merge-in a b) more)))
 
-(defn ask [source k & ks]
+(defn ask [source ks]
   (get-in (->> (vals source)
                (map :data)
                (apply merge-in))
-          (into [k] ks)))
+          ks))
 
