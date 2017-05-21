@@ -3,7 +3,7 @@
 
 (defn file [path]
   {:type :file
-   :source path
+   :path path
    :data (try
            (-> path io/file slurp)
            (catch Exception e
@@ -11,7 +11,7 @@
 
 (defn resource [path]
   {:type :resource
-   :source path
+   :path path
    :data (try
            (-> path io/resource slurp)
            (catch Exception e
@@ -24,6 +24,16 @@
 (defn environment []
   {:type :environment
    :data (System/getenv)})
+
+(defn refresh [source]
+  (into {}
+    (map (fn [[name v]]
+           (let [{:keys [type path]} v]
+             {name (case type
+                     :file (file path)
+                     :resource (resource path)
+                     v)}))
+         source)))
 
 (defn- merge-in
   ([a] a)
