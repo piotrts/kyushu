@@ -19,7 +19,7 @@
   (System/getenv))
 
 (defmethod load-handler :default [source]
-  nil)
+  (:data (val source)))
 
 (defn refresh [provider]
   (into {}
