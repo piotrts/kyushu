@@ -1,31 +1,31 @@
 (ns kyushu.core
   (:require [clojure.java.io :as io]))
 
-(defn- assoc-data [source data]
-  (assoc-in source [1 :data] data))
-
 (defmulti load-handler (comp :type val))
 
 (defmethod load-handler :kyushu/file [source]
-  (assoc-data source (try
-                       (-> source val :path io/file slurp)
-                       (catch Exception e
-                         {}))))
+  (try
+    (-> source val :path io/file slurp)
+    (catch Exception e
+      {})))
 
 (defmethod load-handler :kyushu/resource [source]
-  (assoc-data source (try
-                       (-> source val :path io/resource slurp)
-                       (catch Exception e
-                         {}))))
+  (try
+    (-> source val :path io/resource slurp)
+    (catch Exception e
+      {})))
 
 (defmethod load-handler :kyushu/environment [source]
-  (assoc-data source (System/getenv)))
+  (System/getenv))
 
 (defmethod load-handler :default [source]
-  source)
+  nil)
 
 (defn refresh [provider]
-  (into {} (map load-handler provider)))
+  (into {}
+    (map (fn [source]
+           (assoc-in source [1 :data] (load-handler source)))
+         provider)))
 
 (defn- merge-in
   ([a] a)
