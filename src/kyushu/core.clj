@@ -21,11 +21,12 @@
 (defmethod load-handler :default [source]
   (:data (val source)))
 
-(defn refresh [provider]
-  (into {}
-    (map (fn [source]
-           (assoc-in source [1 :data] (load-handler source)))
-         provider)))
+(defn refresh [provider & [refresh-fn]]
+  (let [refresh-fn (or refresh-fn load-handler)]
+    (into {}
+      (map (fn [source]
+             (assoc-in source [1 :data] (refresh-fn source)))
+           provider))))
 
 (defn- merge-in
   ([a] a)
