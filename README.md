@@ -19,7 +19,7 @@ Calling ```refresh``` on a configuration map by default updates every source whe
 
 ```clojure
 (defmethod k/load-handler :my-namespace/some-type [source]
-  (k/assoc-data source {:awesome? true}))
+  {:awesome? true})
 
 (-> {:some-random-source-name {:type :my-namespace/some-type}}
     (k/refresh)
